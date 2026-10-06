@@ -1,0 +1,44 @@
+Spicy Weeks for Heroes of Might and Magic: Olden Era
+====================================================
+
+Neutral invasion weeks on random maps, in the spirit of Heroes 3's "Month of the ...":
+on some weeks a single kind of neutral creature appears in stacks all over the map,
+growing stronger as the game goes on, and the astrologer announces the invasion
+in place of the usual week effect.
+
+INSTALL (Windows)
+-----------------
+1. Close the game.
+2. In Steam: right-click Olden Era > Manage > Browse local files.
+3. Extract everything from this zip into that folder, keeping the folder structure.
+   You should end up with winhttp.dll and a BepInEx folder next to HeroesOldenEra.exe.
+4. Start the game. The FIRST start takes a few extra minutes on the splash screen while
+   BepInEx prepares itself; later starts are normal.
+
+MULTIPLAYER
+-----------
+Every player needs the same Spicy Weeks version AND the same settings file
+(BepInEx/config/olden-era-mods.spicy-weeks.cfg, included in this zip).
+Different settings produce different invasions and the game will desync.
+Do not edit the settings unless everyone in the game makes the same change.
+
+UNINSTALL
+---------
+Delete winhttp.dll from the game folder (or set enabled = false in doorstop_config.ini).
+Delete the BepInEx and dotnet folders to remove everything.
+
+GAME UPDATES
+------------
+A game patch may break the mod. If it does, BepInEx logs a warning
+(BepInEx/LogOutput.log) and the game runs without invasions until a new version is out.
+
+MAC (CrossOver / Whisky / other Wine wrappers)
+----------------------------------------------
+Under Wine three extra steps are needed, all inside the Wine bottle:
+1. DLL override for HeroesOldenEra.exe: winhttp = native,builtin
+   (registry: HKCU\Software\Wine\AppDefaults\HeroesOldenEra.exe\DllOverrides,
+   value name "*winhttp" if the bottle has a global "*winhttp" entry).
+2. Environment variable DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 for the bottle
+   (registry: HKCU\Environment), otherwise .NET crashes on Wine's icu.dll.
+3. Nothing else: the Unity libraries BepInEx would normally download are already included
+   (BepInEx/unity-libs), because .NET under Wine cannot make HTTPS requests.

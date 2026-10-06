@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- BepInEx 6 IL2CPP ships a .NET 6 runtime -->
+    <TargetFramework>net6.0</TargetFramework>
+    <AssemblyName>SpicyWeeks</AssemblyName>
+    <Version>0.7.1</Version>
+    <Nullable>disable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <!-- Compile against the reference assemblies in lib/ (scripts/update-refs.sh), so CI builds without the game. -->
+  <PropertyGroup>
+    <LibDir>$(MSBuildThisFileDirectory)../../lib</LibDir>
+    <!-- Local deploy target; override with: dotnet build -p:GameDir=/path/to/Olden Era -->
+    <GameDir Condition="'$(GameDir)' == ''">$(HOME)/Library/Containers/com.adrianlungu.rum/Bottles/EDE0E85D-87F5-459D-B5AD-C926B0714506/drive_c/Program Files (x86)/Steam/steamapps/common/Heroes of Might and Magic Olden Era</GameDir>
+    <PluginDeployDir>$(GameDir)/BepInEx/plugins/SpicyWeeks</PluginDeployDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="$(LibDir)/BepInEx.Core.dll" Private="false" />
+    <Reference Include="$(LibDir)/BepInEx.Unity.IL2CPP.dll" Private="false" />
+    <Reference Include="$(LibDir)/0Harmony.dll" Private="false" />
+    <Reference Include="$(LibDir)/Il2CppInterop.Runtime.dll" Private="false" />
+    <Reference Include="$(LibDir)/Il2CppInterop.Common.dll" Private="false" />
+    <Reference Include="$(LibDir)/Il2Cppmscorlib.dll" Private="false" />
+    <Reference Include="$(LibDir)/Hex.dll" Private="false" />
+    <Reference Include="$(LibDir)/Hex.Shared.dll" Private="false" />
+    <Reference Include="$(LibDir)/UnityEngine.CoreModule.dll" Private="false" />
+  </ItemGroup>
+
+  <!-- Copy the built plugin straight into the local game's plugin folder when there is one -->
+  <Target Name="DeployToGame" AfterTargets="Build" Condition="Exists('$(GameDir)/BepInEx/plugins')">
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(PluginDeployDir)" />
+  </Target>
+
+</Project>
