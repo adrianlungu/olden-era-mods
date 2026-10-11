@@ -61,6 +61,8 @@ notes: `.docs/status-1.md` (git-crypt encrypted; readable once the repo is unloc
 
 1. Bump the version in **both** `src/SpicyWeeks/SpicyWeeks.csproj` and `Plugin.Version`, and in the header of
    `packaging/olden-era-mods.spicy-weeks.cfg` if settings changed (add new settings there too; it ships to players).
+   Mark new features and settings in the README with the version that introduces them, e.g. `*(v0.9.0+)*`,
+   since the README on `main` can be ahead of the latest release.
 2. Commit, then `git tag vX.Y.Z && git push origin vX.Y.Z`. The workflow builds and publishes the zip.
 3. The pipeline currently assumes a single mod (`v*` tags build only Spicy Weeks). **When a second mod is added**,
    switch to per-mod tags (e.g. `spicy-weeks-v0.9.0`, `other-mod-v0.1.0`): the workflow derives the mod and version
