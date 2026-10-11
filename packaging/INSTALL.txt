@@ -1,7 +1,7 @@
 Spicy Weeks for Heroes of Might and Magic: Olden Era
 ====================================================
 
-Neutral invasion weeks on random maps, in the spirit of Heroes 3's "Month of the ...":
+Neutral invasion weeks on random maps (and hand-made maps without a script), in the spirit of Heroes 3's "Month of the ...":
 on some weeks a single kind of neutral creature appears in stacks all over the map,
 growing stronger as the game goes on, and the astrologer announces the invasion
 in place of the usual week effect.

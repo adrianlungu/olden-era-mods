@@ -2,7 +2,7 @@
 
 Olden Era Mods: BepInEx 6 (IL2CPP) plugins for Heroes of Might and Magic: Olden Era (Unity 6000.0.66, IL2CPP,
 GUPS-obfuscated), one per folder under `src/`. Current mods: Spicy Weeks (`src/SpicyWeeks`: monster invasion weeks
-on random maps, banned astrologer effects). Shared tooling (`lib/`, `scripts/`, `packaging/`, CI) serves all mods.
+on maps without their own script, i.e. random maps and unscripted hand-made maps; banned astrologer effects). Shared tooling (`lib/`, `scripts/`, `packaging/`, CI) serves all mods.
 When adding a mod, add it to the README mod table and give it its own section there.
 Player docs: `README.md`. Detailed reverse-engineering notes: `.docs/plan-1.md`, environment and release
 notes: `.docs/status-1.md` (git-crypt encrypted; readable once the repo is unlocked).

@@ -48,7 +48,9 @@ Brings back the Heroes 3 feeling of *"Month of the Peasant"*, and lets you get r
   You can ban others too.
 - **Works in multiplayer.** Every player sees the same invasions.
 
-Invasions happen on random maps (any template). Banned effects apply on every map.
+Invasions happen on random maps (any template) and on hand-made maps without their own script
+(of the maps that come with the game, that's Broken Alliance). Maps with a story or scripted events
+are left alone. Banned effects apply on every map.
 
 ### Settings
 
