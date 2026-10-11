@@ -1,7 +1,43 @@
-# Spicy Weeks
+# Olden Era Mods
 
-A mod for **Heroes of Might and Magic: Olden Era** that brings back the Heroes 3 feeling of
-*"Month of the Peasant"*, and lets you get rid of week effects you don't enjoy.
+Mods for **Heroes of Might and Magic: Olden Era**, built on the [BepInEx](https://github.com/BepInEx/BepInEx) mod loader.
+
+| Mod | What it does |
+|---|---|
+| [Spicy Weeks](#spicy-weeks) | Heroes 3-style monster invasion weeks, and bans week effects you don't enjoy. |
+
+## Installing a mod
+
+1. Download the mod's zip from the [releases page](../../releases).
+2. In Steam, right-click **Olden Era** → **Manage** → **Browse local files**.
+3. Extract the zip **into that folder**. `winhttp.dll` and the `BepInEx` folder must end up
+   right next to `HeroesOldenEra.exe`, not inside a subfolder.
+4. Start the game as usual. The **first** start takes a few extra minutes on the splash screen;
+   after that it's normal.
+
+Everything needed is in the zip, BepInEx included.
+
+**Is it working?** After starting the game, `BepInEx/LogOutput.log` should exist in the game folder
+and list the mod, e.g. `Loading [Spicy Weeks ...]`.
+
+**Playing with friends:** everyone needs **the same mod versions** and **the same settings files**.
+If one player changes a setting, the games will drift apart and desync.
+Simplest: everyone installs the same zips and nobody edits the settings.
+
+**Uninstall:** delete `winhttp.dll` from the game folder to turn all mods off. To remove everything,
+also delete the `BepInEx` and `dotnet` folders.
+
+**After a game update:** a game patch can break a mod. If it does, the game still runs normally,
+just without that mod's features, until a new version of the mod is released.
+
+**Mac (Wine, CrossOver, Whisky):** the mods work under Wine with two extra settings in the Wine bottle.
+See *MAC* in [`packaging/INSTALL.txt`](packaging/INSTALL.txt).
+
+---
+
+## Spicy Weeks
+
+Brings back the Heroes 3 feeling of *"Month of the Peasant"*, and lets you get rid of week effects you don't enjoy.
 
 - **Monster invasions.** Now and then the astrologer announces something like
   *"Week of Pestilence: lich dragons invade the land!"*, and stacks of that creature appear all over the map.
@@ -12,26 +48,7 @@ A mod for **Heroes of Might and Magic: Olden Era** that brings back the Heroes 3
 
 Invasions happen on random maps (any template). Banned effects apply on every map.
 
-## Install
-
-1. Download `SpicyWeeks-x.y.z.zip` from the [latest release](../../releases/latest).
-2. In Steam, right-click **Olden Era** → **Manage** → **Browse local files**.
-3. Extract the zip **into that folder**. `winhttp.dll` and the `BepInEx` folder must end up
-   right next to `HeroesOldenEra.exe`, not inside a subfolder.
-4. Start the game as usual. The **first** start takes a few extra minutes on the splash screen;
-   after that it's normal.
-
-Everything needed is in the zip, BepInEx (the mod loader) included.
-
-**Is it working?** After starting the game, `BepInEx/LogOutput.log` should exist in the game folder
-and contain `Loading [Spicy Weeks ...]`.
-
-## Playing with friends
-
-Everyone needs **the same version** and **the same settings file**. If one player changes a setting,
-the games will drift apart and desync. Simplest: everyone installs the same zip and nobody edits the settings.
-
-## Settings
+### Settings
 
 Open `BepInEx/config/olden-era-mods.spicy-weeks.cfg` in any text editor.
 
@@ -57,25 +74,13 @@ Some effects you might want to ban:
 | `astrologist_month_1` | Month of Plague: kills unowned creatures in towns and dwellings |
 | `astrologist_month_8` | Month of Destruction: no building |
 
-## Uninstall
-
-Delete `winhttp.dll` from the game folder. To remove everything, also delete the `BepInEx` and `dotnet` folders.
-
-## After a game update
-
-A game patch can break the mod. If it does, the game still runs normally, just without invasions,
-until a new version of the mod is released.
-
-## Playing on a Mac (Wine, CrossOver, Whisky)
-
-The mod works under Wine with two extra settings in the Wine bottle. See *MAC* in
-[`packaging/INSTALL.txt`](packaging/INSTALL.txt).
+To remove only Spicy Weeks, delete the `BepInEx/plugins/SpicyWeeks` folder.
 
 ---
 
 ## For developers
 
-The mod is a [BepInEx 6](https://github.com/BepInEx/BepInEx) (IL2CPP) plugin in `src/SpicyWeeks`.
+Each mod is a BepInEx 6 (IL2CPP) plugin under `src/` (Spicy Weeks: `src/SpicyWeeks`).
 
 - **Build:** `dotnet build src/SpicyWeeks -c Release`. It compiles against the reference assemblies
   in `lib/`, and copies the plugin into your local game if one is found.
