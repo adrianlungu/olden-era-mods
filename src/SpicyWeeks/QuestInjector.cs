@@ -63,7 +63,7 @@ public class QuestInjector : MonoBehaviour
         {
             var settings = new SpawnSettings(Plugin.TilesPerStack.Value, Plugin.StackValue.Value,
                 Plugin.WeeklyGrowthPercent.Value / 100.0, Plugin.SpawnChancePercent.Value, Plugin.FirstWeek.Value,
-                Plugin.MinWeeksBetween.Value, Plugin.RevealSpawns.Value, Weeks: 200);
+                Plugin.MinWeeksBetween.Value, Plugin.RevealSpawns.Value, Weeks: 200, Moods.Parse(Plugin.Moods.Value));
             // Every client shares the lobby seed → same script, keeping multiplayer in lockstep.
             if (!GameSeed.TryGet(out var seed))
             {

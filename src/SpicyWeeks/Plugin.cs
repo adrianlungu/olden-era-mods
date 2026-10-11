@@ -14,7 +14,7 @@ public class Plugin : BasePlugin
 {
     public const string Guid = "olden-era-mods.spicy-weeks";
     public const string Name = "Spicy Weeks";
-    public const string Version = "0.8.0";
+    public const string Version = "0.9.0";
 
     internal static ManualLogSource L;
 
@@ -26,6 +26,7 @@ public class Plugin : BasePlugin
     internal static ConfigEntry<int> FirstWeek;
     internal static ConfigEntry<int> MinWeeksBetween;
     internal static ConfigEntry<bool> OverrideWeekEffect;
+    internal static ConfigEntry<string> Moods;
     internal static ConfigEntry<string> BannedEffects;
     internal static ConfigEntry<bool> RevealSpawns;
 
@@ -52,6 +53,11 @@ public class Plugin : BasePlugin
             "Quiet weeks required between two invasions.");
         OverrideWeekEffect = Config.Bind("Invasions", "OverrideWeekEffect", true,
             "On invasion weeks, replace the astrologer's week effect and announcement with the invasion.");
+        Moods = Config.Bind("Invasions", "Moods", "Aggressive,Negative,Common,Friendly,Peaceful",
+            "Moods an invasion can roll, comma-separated; list one twice to make it more likely. " +
+            "They set how likely stacks are to offer to join a hero, from " +
+            "Aggressive (Raging: least likely) through Negative (Restless), Common (the themed week) and " +
+            "Friendly (Wandering) to Peaceful (Travelling: most likely).");
         BannedEffects = Config.Bind("Astrology", "BannedEffects", "astrologist_month_5",
             "Comma-separated week/month effects that never happen; a banned roll becomes Week/Month of Calm. " +
             "astrologist_month_5 = Month of Clarity (reveals the whole map), astrologist_week_5 = Week of Dusk, " +

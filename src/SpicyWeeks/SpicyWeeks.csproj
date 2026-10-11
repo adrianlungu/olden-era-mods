@@ -4,7 +4,7 @@
     <!-- BepInEx 6 IL2CPP ships a .NET 6 runtime -->
     <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>SpicyWeeks</AssemblyName>
-    <Version>0.8.0</Version>
+    <Version>0.9.0</Version>
     <Nullable>disable</Nullable>
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>

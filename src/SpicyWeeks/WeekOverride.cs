@@ -51,8 +51,7 @@ internal static class WeekOverride
             {
                 if (!ReplaceWithCalm(__instance, ref __result, out var calm)) return;
                 SetText(calm.Name, invasion.WeekName);
-                SetText(calm.Desc,
-                    $"{invasion.Creatures} invade the land! {invasion.Stacks} roaming stacks have appeared across the map.");
+                SetText(calm.Desc, invasion.Announcement);
                 Plugin.L.LogInfo($"Week {invasion.AbsoluteWeek + 1}: replaced astrologer roll with {calm.Sid} for {invasion.WeekName}");
                 return;
             }

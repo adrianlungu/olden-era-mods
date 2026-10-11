@@ -10,15 +10,16 @@ namespace SpicyWeeks;
 
 internal record SpawnSettings(
     int TilesPerStack, int BaseValue, double WeeklyGrowth, int ChancePercent, int FirstWeek, int MinWeeksBetween,
-    bool Reveal, int Weeks);
+    bool Reveal, int Weeks, Mood[] Moods);
 
 /// <summary>
 /// Rolls the game's invasion schedule and builds a quest script with one non-repeating trigger per invasion,
 /// scheduled by exact date:
-///   AnyStartTurn [month, week, 1] → [SpawnSquad × N] [RevealFogOfWar × N] Print
+///   AnyStartTurn [month, week, 1] → [SpawnSquad, ChangeSquadReactionType] × N [RevealFogOfWar × N] Print
 /// (Counter conditions never matched on injected scripts, so the schedule avoids counters.)
 /// An invasion spawns a single themed neutral creature across the whole map: the stack count follows the
-/// map area and the stack strength grows with the week. Every roll comes from the lobby seed, so all
+/// map area and the stack strength grows with the week. Each invasion also rolls a mood (see Moods) that sets
+/// whether its stacks fight or may join, and names the week accordingly. Every roll comes from the lobby seed, so all
 /// clients in a multiplayer game build the same script.
 /// SpawnSquad params: [squadSid, tileIndex (x + z*width), strengthValue, flag, spawnedName]; the game
 /// moves the stack to a free neighbouring tile when the target is blocked.
@@ -107,7 +108,9 @@ internal static class SpawnQuest
             if (fitting.Length == 0) continue;
 
             var theme = fitting[rng.Next(fitting.Length)];
-            invasions.Add(new Invasion(absolute, theme.Id, theme.Week, theme.Creatures, stacks, value));
+            var mood = s.Moods[rng.Next(s.Moods.Length)];
+            invasions.Add(new Invasion(absolute, theme.Id, mood.Title?.Invoke(theme.Creatures) ?? theme.Week,
+                mood.Announcement(theme.Creatures, stacks), mood.Reaction, stacks, value));
             lastInvasion = absolute;
         }
 
@@ -122,14 +125,16 @@ internal static class SpawnQuest
         for (var i = 0; i < invasion.Stacks; i++)
         {
             var tile = rng.Next(Margin, width - Margin) + rng.Next(Margin, height - Margin) * width;
+            var name = $"spicy_weeks_w{gameWeek}_{i}";
             actions.Add(MakeAction(EAction.SpawnSquad, "SpawnSquad",
-                invasion.SquadId, tile.ToString(), invasion.Value.ToString(), "true", $"spicy_weeks_w{gameWeek}_{i}"));
+                invasion.SquadId, tile.ToString(), invasion.Value.ToString(), "true", name));
+            actions.Add(MakeAction(EAction.ChangeSquadReactionType, "ChangeSquadReactionType", name, invasion.Reaction));
             if (s.Reveal)
                 actions.Add(MakeAction(EAction.RevealFogOfWar, "RevealFogOfWar", tile.ToString(), RevealRadius.ToString()));
         }
 
         actions.Add(MakeAction(EAction.Print, "Print",
-            $"[SpicyWeeks] week {gameWeek}: {invasion.WeekName}! {invasion.Stacks} stacks of {invasion.SquadId}, value {invasion.Value}"));
+            $"[SpicyWeeks] week {gameWeek}: {invasion.WeekName}! {invasion.Stacks} {invasion.Reaction} stacks of {invasion.SquadId}, value {invasion.Value}"));
 
         return new Trigger
         {
