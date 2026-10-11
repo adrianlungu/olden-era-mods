@@ -42,7 +42,7 @@ Brings back the Heroes 3 feeling of *"Month of the Peasant"*, and lets you get r
 - **Monster invasions.** Now and then the astrologer announces something like
   *"Week of Pestilence: lich dragons invade the land!"*, and stacks of that creature appear all over the map.
   Early invasions are peasants and pixies; late ones are coatls, sentinels and lich dragons.
-- **Invaders have moods.** Each invasion is in a different mood, which changes how willing its stacks are
+- **Invaders have moods** *(v0.9.0+)*. Each invasion is in a different mood, which changes how willing its stacks are
   to join you: *Week of the Raging Peasants* rarely joins, *Week of the Travelling Peasants* often does.
 - **Banned week effects.** Month of Clarity, the one that reveals the whole map, never happens.
   You can ban others too.
@@ -64,7 +64,7 @@ Open `BepInEx/config/olden-era-mods.spicy-weeks.cfg` in any text editor.
 | `StackValue` | `4000` | How strong each stack is at the start of the game. |
 | `WeeklyGrowthPercent` | `12` | How much stronger stacks get each week. |
 | `OverrideWeekEffect` | `true` | Invasion weeks replace the normal week effect and announcement. |
-| `Moods` | `Aggressive,Negative,Common,Friendly,Peaceful` | Moods an invasion can roll, from least to most willing to join. List a mood twice to make it more likely. |
+| `Moods` *(v0.9.0+)* | `Aggressive,Negative,Common,Friendly,Peaceful` | Moods an invasion can roll, from least to most willing to join. List a mood twice to make it more likely. |
 | `BannedEffects` | `astrologist_month_5` | Week/month effects that never happen, comma-separated. |
 
 Some effects you might want to ban:
