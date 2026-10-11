@@ -41,35 +41,49 @@ internal static class WeekOverride
         try
         {
             RestoreText();
-            if (!Plugin.OverrideWeekEffect.Value) return;
 
             var data = SessionDataNow();
-            if (data == null) return;
+            var invasion = Plugin.OverrideWeekEffect.Value && data != null
+                ? InvasionSchedule.For(InvasionSchedule.AbsoluteWeek(data.month, data.week))
+                : null;
 
-            var absolute = InvasionSchedule.AbsoluteWeek(data.month, data.week);
-            var invasion = InvasionSchedule.For(absolute);
-            if (invasion == null) return;
-
-            foreach (var calm in Calm)
+            if (invasion != null)
             {
-                var replacement = __instance.bbsn(calm.Sid);
-                if (replacement == null) continue;
-
-                __result = replacement;
+                if (!ReplaceWithCalm(__instance, ref __result, out var calm)) return;
                 SetText(calm.Name, invasion.WeekName);
                 SetText(calm.Desc,
                     $"{invasion.Creatures} invade the land! {invasion.Stacks} roaming stacks have appeared across the map.");
-                Plugin.L.LogInfo($"Week {absolute + 1} (month {data.month}, week {data.week}): " +
-                                 $"replaced astrologer roll with {calm.Sid} for {invasion.WeekName}");
+                Plugin.L.LogInfo($"Week {invasion.AbsoluteWeek + 1}: replaced astrologer roll with {calm.Sid} for {invasion.WeekName}");
                 return;
             }
 
-            Plugin.L.LogWarning($"Week {absolute + 1}: no Calm effect available to replace the astrologer roll");
+            // Banned effects apply on every map, scripted or random.
+            var rolled = __result?.chyb?.sid;
+            if (rolled == null || !Plugin.BannedEffectSids().Contains(rolled)) return;
+            if (ReplaceWithCalm(__instance, ref __result, out var quiet))
+                Plugin.L.LogInfo($"Banned effect {rolled} rolled; replaced with {quiet.Sid}");
         }
         catch (Exception e)
         {
             Plugin.L.LogError($"Week override failed: {e}");
         }
+    }
+
+    // Week of Calm from the week picker, Month of Calm from the month picker.
+    private static bool ReplaceWithCalm(ect picker, ref ecr result, out (string Sid, string Name, string Desc) calm)
+    {
+        foreach (var candidate in Calm)
+        {
+            var replacement = picker.bbsn(candidate.Sid);
+            if (replacement == null) continue;
+            result = replacement;
+            calm = candidate;
+            return true;
+        }
+
+        calm = default;
+        Plugin.L.LogWarning("No Calm effect available to replace the astrologer roll");
+        return false;
     }
 
     public static void RestoreText()

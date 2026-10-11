@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using BepInEx;
 using BepInEx.Configuration;
@@ -12,7 +14,7 @@ public class Plugin : BasePlugin
 {
     public const string Guid = "olden-era-mods.spicy-weeks";
     public const string Name = "Spicy Weeks";
-    public const string Version = "0.7.1";
+    public const string Version = "0.8.0";
 
     internal static ManualLogSource L;
 
@@ -24,7 +26,11 @@ public class Plugin : BasePlugin
     internal static ConfigEntry<int> FirstWeek;
     internal static ConfigEntry<int> MinWeeksBetween;
     internal static ConfigEntry<bool> OverrideWeekEffect;
+    internal static ConfigEntry<string> BannedEffects;
     internal static ConfigEntry<bool> RevealSpawns;
+
+    internal static HashSet<string> BannedEffectSids() =>
+        new(BannedEffects.Value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
 
     public override void Load()
     {
@@ -46,6 +52,10 @@ public class Plugin : BasePlugin
             "Quiet weeks required between two invasions.");
         OverrideWeekEffect = Config.Bind("Invasions", "OverrideWeekEffect", true,
             "On invasion weeks, replace the astrologer's week effect and announcement with the invasion.");
+        BannedEffects = Config.Bind("Astrology", "BannedEffects", "astrologist_month_5",
+            "Comma-separated week/month effects that never happen; a banned roll becomes Week/Month of Calm. " +
+            "astrologist_month_5 = Month of Clarity (reveals the whole map), astrologist_week_5 = Week of Dusk, " +
+            "astrologist_week_6 = 3-day week. Sids are in DB/weeks_info.json inside Core.zip.");
         RevealSpawns = Config.Bind("Debug", "RevealSpawns", false,
             "Clear the fog around each spawned stack (for testing).");
 

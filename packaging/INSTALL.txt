@@ -6,6 +6,10 @@ on some weeks a single kind of neutral creature appears in stacks all over the m
 growing stronger as the game goes on, and the astrologer announces the invasion
 in place of the usual week effect.
 
+It also bans Month of Clarity (the month that reveals the whole map): when the
+astrologer rolls it, the month is Calm instead. More effects can be banned in
+the settings file (BannedEffects).
+
 INSTALL (Windows)
 -----------------
 1. Close the game.
