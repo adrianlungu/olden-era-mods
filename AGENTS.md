@@ -50,12 +50,18 @@ notes: `.docs/status-1.md` (git-crypt encrypted; readable once the repo is unloc
   neighbour. Neutral squads `squad_neutral_one_unit_t1..t8` scale to `value` within their min/max range.
 - The quest manager factory needs real side lists: human sides, plus the first bot side (`Sides.cs`).
 - `StartWeek` fires on day 8, 15, ... (not day 1). The astrologer's roll happens before quest triggers on the same day.
+- `ChangeSquadReactionType [name, reaction]` works on stacks we spawned (SpawnSquad's default is `Common`).
+  Joining (`fcq.bkdw`): Docile always joins, Aggressive never; otherwise the hero needs diplomacy and enough points
+  versus `squadUnitsPoints[tier] * amount * reactionTypeModifiers[reaction]` (DB/diplomacy_info.json), plus a free slot.
+- Lobby settings (seed, `NeutralsDifficulty`, ...) are on `StartInfo.settings` (`GameSeed.cs`); saves are gzip JSON
+  (`.saveskirmish`) and show the same values, handy for checking what the game actually did.
 
 ## Reverse-engineering tools
 
 - `ilspycmd -p -o <out> -r BepInEx/interop -r BepInEx/core -r dotnet BepInEx/interop/Hex.dll`: wrapper signatures.
 - Cpp2IL (2022.1 pre-release, macOS needs `codesign --force -s - Cpp2IL`) with `--output-as isil`: method bodies with
-  resolved call names. Use it to read what a method actually does before hooking it.
+  resolved call names. Use it to read what a method actually does before hooking it. `--output-as diffable-cs`
+  gives field offsets, needed to read ISIL `[reg+0x..]` accesses and raw-pointer reads like `Terrain.cs`.
 
 ## Releases
 

@@ -27,8 +27,12 @@ public class Plugin : BasePlugin
     internal static ConfigEntry<int> MinWeeksBetween;
     internal static ConfigEntry<bool> OverrideWeekEffect;
     internal static ConfigEntry<string> Moods;
+    internal static ConfigEntry<string> Factions;
+    internal static ConfigEntry<int> MixedChancePercent;
+    internal static ConfigEntry<bool> MatchNeutralDifficulty;
     internal static ConfigEntry<string> BannedEffects;
     internal static ConfigEntry<bool> RevealSpawns;
+    internal static ConfigEntry<bool> DumpMap;
 
     internal static HashSet<string> BannedEffectSids() =>
         new(BannedEffects.Value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
@@ -42,7 +46,7 @@ public class Plugin : BasePlugin
         TilesPerStack = Config.Bind("Invasions", "TilesPerStack", 400,
             "Invasion size: one stack per this many map tiles (160x160 -> 64 stacks, 72x72 -> 12).");
         StackValue = Config.Bind("Invasions", "StackValue", 4000,
-            "Strength of each stack in week 2; the game scales the stack size to this.");
+            "Strength of each stack in week 2 at hard neutral difficulty; the game scales the stack size to this.");
         WeeklyGrowthPercent = Config.Bind("Invasions", "WeeklyGrowthPercent", 12,
             "Compound growth of stack strength per week (12 -> ~10k by week 10, ~30k by week 20).");
         SpawnChancePercent = Config.Bind("Invasions", "ChancePercent", 25,
@@ -58,12 +62,22 @@ public class Plugin : BasePlugin
             "They set how likely stacks are to offer to join a hero, from " +
             "Aggressive (Raging: least likely) through Negative (Restless), Common (the themed week) and " +
             "Friendly (Wandering) to Peaceful (Travelling: most likely).");
+        Factions = Config.Bind("Invasions", "Factions", "all",
+            "Which creatures invade, comma-separated: neutral, human, demon, dungeon, nature, undead, unfrozen, or all. " +
+            "Faction creatures include their upgrades.");
+        MixedChancePercent = Config.Bind("Invasions", "MixedChancePercent", 75,
+            "Chance (0-100) that an invasion is mixed: each stack is a different creature instead of the whole week being one.");
+        MatchNeutralDifficulty = Config.Bind("Invasions", "MatchNeutralDifficulty", true,
+            "Scale StackValue by the game's neutral difficulty, like the game's own neutral stacks: " +
+            "easy x0.5, normal x0.75, hard x1, impossible x1.25, deadly x1.5, hell x2.");
         BannedEffects = Config.Bind("Astrology", "BannedEffects", "astrologist_month_5",
             "Comma-separated week/month effects that never happen; a banned roll becomes Week/Month of Calm. " +
             "astrologist_month_5 = Month of Clarity (reveals the whole map), astrologist_week_5 = Week of Dusk, " +
             "astrologist_week_6 = 3-day week. Sids are in DB/weeks_info.json inside Core.zip.");
         RevealSpawns = Config.Bind("Debug", "RevealSpawns", false,
             "Clear the fog around each spawned stack (for testing).");
+        DumpMap = Config.Bind("Debug", "DumpMap", false,
+            "Write BepInEx/spicy-weeks-map.txt showing passable, unreachable and spawn tiles (for testing).");
 
         var harmony = new Harmony(Guid);
         harmony.PatchAll(typeof(Plugin).Assembly);

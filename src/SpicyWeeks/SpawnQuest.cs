@@ -10,46 +10,26 @@ namespace SpicyWeeks;
 
 internal record SpawnSettings(
     int TilesPerStack, int BaseValue, double WeeklyGrowth, int ChancePercent, int FirstWeek, int MinWeeksBetween,
-    bool Reveal, int Weeks, Mood[] Moods);
+    bool Reveal, int Weeks, Mood[] Moods, Creature[] Pool, int MixedChancePercent);
 
 /// <summary>
 /// Rolls the game's invasion schedule and builds a quest script with one non-repeating trigger per invasion,
 /// scheduled by exact date:
 ///   AnyStartTurn [month, week, 1] → [SpawnSquad, ChangeSquadReactionType] × N [RevealFogOfWar × N] Print
 /// (Counter conditions never matched on injected scripts, so the schedule avoids counters.)
-/// An invasion spawns a single themed neutral creature across the whole map: the stack count follows the
+/// An invasion spawns one creature across the whole map (or, in a mixed invasion, a creature per stack)
+/// from the configured factions: the stack count follows the
 /// map area and the stack strength grows with the week. Each invasion also rolls a mood (see Moods) that sets
 /// whether its stacks fight or may join, and names the week accordingly. Every roll comes from the lobby seed, so all
 /// clients in a multiplayer game build the same script.
 /// SpawnSquad params: [squadSid, tileIndex (x + z*width), strengthValue, flag, spawnedName]; the game
-/// moves the stack to a free neighbouring tile when the target is blocked.
+/// moves the stack to a free neighbouring tile when the target is blocked. Target tiles come from Terrain, which
+/// excludes tiles walled in by mountains or cliffs.
 /// </summary>
 internal static class SpawnQuest
 {
     private const int Margin = 3;
     private const int RevealRadius = 3;
-
-    // Neutral single-creature squads from DB/squads/squads_neutral: id, min value (dynamicSquad.requiredValue),
-    // max value (randomSquad.maxValue), the invasion week they name, and how the announcement calls them.
-    private static readonly (string Id, int Min, int Max, string Week, string Creatures)[] Themes =
-    {
-        ("squad_neutral_one_unit_t1_1", 1, 10001, "Week of the Fair Folk", "Pixies"),
-        ("squad_neutral_one_unit_t2_1", 2503, 15002, "Week of the Halflings", "Halflings"),
-        ("squad_neutral_one_unit_t2_2", 2503, 15002, "Week of the Peasant Revolt", "Peasants"),
-        ("squad_neutral_one_unit_t3_1", 5003, 30003, "Week of the Apes", "Gorillas"),
-        ("squad_neutral_one_unit_t3_2", 5003, 30003, "Week of Haunted Steel", "Animated armors"),
-        ("squad_neutral_one_unit_t4_1", 10004, 60004, "Week of the Horned Kittens", "Horned kittens"),
-        ("squad_neutral_one_unit_t4_2", 10004, 60004, "Week of the Primal Echo", "Primal remnants"),
-        ("squad_neutral_one_unit_t4_3", 10004, 60004, "Week of Falling Stars", "Star children"),
-        ("squad_neutral_one_unit_t4_4", 10004, 60004, "Week of the Unicorn", "Unicorns"),
-        ("squad_neutral_one_unit_t5_1", 15005, 120005, "Week of the Fairy Dragon", "Fairy dragons"),
-        ("squad_neutral_one_unit_t5_2", 15005, 120005, "Week of the Frog Plague", "Giant frogs"),
-        ("squad_neutral_one_unit_t6_1", 20006, 1800060, "Week of the Feathered Serpent", "Coatls"),
-        ("squad_neutral_one_unit_t6_2", 20006, 1800060, "Week of the Iron Guard", "Mech guards"),
-        ("squad_neutral_one_unit_t6_3", 20006, 1800060, "Week of the Hunt", "Dragon hunters"),
-        ("squad_neutral_one_unit_t7_1", 25007, 6000000, "Week of the Sentinels", "Sentinels"),
-        ("squad_neutral_one_unit_t8_1", 25007, 24000000, "Week of Pestilence", "Lich dragons"),
-    };
 
     public static Quests Build(int width, int height, int seed, SpawnSettings s)
     {
@@ -57,7 +37,9 @@ internal static class SpawnQuest
         var schedule = Roll(width * height, rng, s);
         InvasionSchedule.Set(schedule);
 
-        var triggers = schedule.Select(i => InvasionTrigger(i, width, height, rng, s)).ToArray();
+        var spawns = new List<int>();
+        var triggers = schedule.Select(i => InvasionTrigger(i, width, height, rng, s, spawns)).ToArray();
+        if (Plugin.DumpMap.Value) Terrain.Dump(spawns);
 
         var subQuest = new SubQuest
         {
@@ -104,37 +86,54 @@ internal static class SpawnQuest
             if (absolute - lastInvasion <= s.MinWeeksBetween || rng.Next(100) >= s.ChancePercent) continue;
 
             var value = (int)(s.BaseValue * Math.Pow(1 + s.WeeklyGrowth, gameWeek - 2));
-            var fitting = Themes.Where(t => t.Min <= value && value <= t.Max).ToArray();
+            var fitting = Creatures.Fitting(s.Pool, value);
             if (fitting.Length == 0) continue;
 
-            var theme = fitting[rng.Next(fitting.Length)];
+            string[] squads;
+            string name, week;
+            if (fitting.Length > 1 && rng.Next(100) < s.MixedChancePercent)
+            {
+                squads = Enumerable.Range(0, stacks).Select(_ => fitting[rng.Next(fitting.Length)].SquadId).ToArray();
+                (name, week) = ("Monsters", "Week of the Horde");
+            }
+            else
+            {
+                var creature = fitting[rng.Next(fitting.Length)];
+                squads = Enumerable.Repeat(creature.SquadId, stacks).ToArray();
+                (name, week) = (creature.Name, creature.Week ?? $"Week of the {creature.Name}");
+            }
+
             var mood = s.Moods[rng.Next(s.Moods.Length)];
-            invasions.Add(new Invasion(absolute, theme.Id, mood.Title?.Invoke(theme.Creatures) ?? theme.Week,
-                mood.Announcement(theme.Creatures, stacks), mood.Reaction, stacks, value));
+            invasions.Add(new Invasion(absolute, squads, mood.Title?.Invoke(name) ?? week,
+                mood.Announcement(name, stacks), mood.Reaction, stacks, value));
             lastInvasion = absolute;
         }
 
         return invasions;
     }
 
-    private static Trigger InvasionTrigger(Invasion invasion, int width, int height, Random rng, SpawnSettings s)
+    private static Trigger InvasionTrigger(Invasion invasion, int width, int height, Random rng, SpawnSettings s, List<int> spawns)
     {
         var actions = new List<Action>();
         var gameWeek = invasion.AbsoluteWeek + 1;
 
         for (var i = 0; i < invasion.Stacks; i++)
         {
-            var tile = rng.Next(Margin, width - Margin) + rng.Next(Margin, height - Margin) * width;
+            var tiles = Terrain.SpawnTiles;
+            var tile = tiles is { Length: > 0 }
+                ? tiles[rng.Next(tiles.Length)]
+                : rng.Next(Margin, width - Margin) + rng.Next(Margin, height - Margin) * width;
+            spawns.Add(tile);
             var name = $"spicy_weeks_w{gameWeek}_{i}";
             actions.Add(MakeAction(EAction.SpawnSquad, "SpawnSquad",
-                invasion.SquadId, tile.ToString(), invasion.Value.ToString(), "true", name));
+                invasion.SquadIds[i], tile.ToString(), invasion.Value.ToString(), "true", name));
             actions.Add(MakeAction(EAction.ChangeSquadReactionType, "ChangeSquadReactionType", name, invasion.Reaction));
             if (s.Reveal)
                 actions.Add(MakeAction(EAction.RevealFogOfWar, "RevealFogOfWar", tile.ToString(), RevealRadius.ToString()));
         }
 
         actions.Add(MakeAction(EAction.Print, "Print",
-            $"[SpicyWeeks] week {gameWeek}: {invasion.WeekName}! {invasion.Stacks} {invasion.Reaction} stacks of {invasion.SquadId}, value {invasion.Value}"));
+            $"[SpicyWeeks] week {gameWeek}: {invasion.WeekName}! {invasion.Stacks} {invasion.Reaction} stacks of {string.Join(",", invasion.SquadIds.Distinct())}, value {invasion.Value}"));
 
         return new Trigger
         {

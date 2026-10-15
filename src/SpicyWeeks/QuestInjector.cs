@@ -41,6 +41,7 @@ public class QuestInjector : MonoBehaviour
         {
             _session = session.Pointer;
             InvasionSchedule.Clear();
+            Terrain.Clear();
             WeekOverride.RestoreText();
             _readyFrames = 0;
             _handled = false;
@@ -56,14 +57,23 @@ public class QuestInjector : MonoBehaviour
             return;
         }
 
-        if (!MapInfo.TryGetSize(out var width, out var height) || ++_readyFrames < SettleFrames) return;
+        if (!MapInfo.TryGetSize(out var width, out var height)) return;
+        // Snapshot the terrain on the first frame the map exists, before anyone can move, so every
+        // multiplayer client picks the same spawn tiles.
+        if (_readyFrames == 0) Terrain.Capture(width, height);
+        if (++_readyFrames < SettleFrames) return;
         _handled = true;
 
         try
         {
-            var settings = new SpawnSettings(Plugin.TilesPerStack.Value, Plugin.StackValue.Value,
+            var power = 1.0;
+            var difficulty = "ignored";
+            if (Plugin.MatchNeutralDifficulty.Value) power = Difficulty.NeutralPower(out difficulty);
+            var stackValue = (int)Math.Round(Plugin.StackValue.Value * power);
+            var settings = new SpawnSettings(Plugin.TilesPerStack.Value, stackValue,
                 Plugin.WeeklyGrowthPercent.Value / 100.0, Plugin.SpawnChancePercent.Value, Plugin.FirstWeek.Value,
-                Plugin.MinWeeksBetween.Value, Plugin.RevealSpawns.Value, Weeks: 200, Moods.Parse(Plugin.Moods.Value));
+                Plugin.MinWeeksBetween.Value, Plugin.RevealSpawns.Value, Weeks: 200, Moods.Parse(Plugin.Moods.Value),
+                Creatures.Pool(Plugin.Factions.Value), Plugin.MixedChancePercent.Value);
             // Every client shares the lobby seed → same script, keeping multiplayer in lockstep.
             if (!GameSeed.TryGet(out var seed))
             {
@@ -86,7 +96,7 @@ public class QuestInjector : MonoBehaviour
             }
 
             IL2CPP.il2cpp_gc_wbarrier_set_field(_session, (IntPtr)slot, manager.Pointer);
-            Plugin.L.LogInfo($"Injected invasion quest manager into script-less map {width}x{height}, seed {seed}, humans [{string.Join(",", humans)}], bot [{string.Join(",", firstBot)}], " +
+            Plugin.L.LogInfo($"Injected invasion quest manager into script-less map {width}x{height}, seed {seed}, neutral difficulty {difficulty} (stack value {stackValue}), humans [{string.Join(",", humans)}], bot [{string.Join(",", firstBot)}], " +
                                 $"invasion weeks [{string.Join(",", InvasionSchedule.AbsoluteWeeks.Select(w => w + 1))}]");
         }
         catch (Exception e)

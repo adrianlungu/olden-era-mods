@@ -2,9 +2,12 @@ Spicy Weeks for Heroes of Might and Magic: Olden Era
 ====================================================
 
 Neutral invasion weeks on random maps (and hand-made maps without a script), in the spirit of Heroes 3's "Month of the ...":
-on some weeks a single kind of neutral creature appears in stacks all over the map,
-growing stronger as the game goes on, and the astrologer announces the invasion
-in place of the usual week effect.
+on some weeks stacks of creatures appear all over the map, growing stronger as the game
+goes on and following the neutral difficulty picked in the lobby. Most invasions are a horde with a different creature from any faction in every
+stack; some are a single creature, Heroes 3-style. Each invasion has
+a mood that sets how willing its stacks are to join a hero, and the astrologer
+announces it in place of the usual week effect. For only single-creature weeks,
+set MixedChancePercent = 0 in the settings file.
 
 It also bans Month of Clarity (the month that reveals the whole map): when the
 astrologer rolls it, the month is Calm instead. More effects can be banned in

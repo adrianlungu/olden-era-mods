@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace SpicyWeeks;
 
 internal record Invasion(
-    int AbsoluteWeek, string SquadId, string WeekName, string Announcement, string Reaction, int Stacks, int Value);
+    int AbsoluteWeek, string[] SquadIds, string WeekName, string Announcement, string Reaction, int Stacks, int Value);
 
 /// <summary>
 /// The current game's invasion weeks, keyed by 0-based absolute week (week 1 of month 1 = 0, day 8 = 1).
