@@ -85,6 +85,8 @@ Some effects you might want to ban:
 | `astrologist_month_1` | Month of Plague: kills unowned creatures in towns and dwellings |
 | `astrologist_month_8` | Month of Destruction: no building |
 
+What changed in each version: [changelog](src/SpicyWeeks/CHANGELOG.md).
+
 To remove only Spicy Weeks, delete the `BepInEx/plugins/SpicyWeeks` folder.
 
 ---
@@ -96,5 +98,5 @@ Each mod is a BepInEx 6 (IL2CPP) plugin under `src/` (Spicy Weeks: `src/SpicyWee
 - **Build:** `dotnet build src/SpicyWeeks -c Release`. It compiles against the reference assemblies
   in `lib/`, and copies the plugin into your local game if one is found.
 - **After a game update:** run `scripts/update-refs.sh` to regenerate `lib/`, then rebuild.
-- **Release:** push a tag like `v0.9.0`. GitHub Actions builds the install zip and publishes the release.
+- **Release:** add the version's section to [`src/SpicyWeeks/CHANGELOG.md`](src/SpicyWeeks/CHANGELOG.md), then push a tag like `v0.9.0`. GitHub Actions builds the install zip and publishes the release.
 - **Local zip:** `scripts/package.sh 0.9.0` writes `dist/SpicyWeeks-0.9.0.zip`.
