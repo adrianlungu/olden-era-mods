@@ -14,7 +14,7 @@ public class Plugin : BasePlugin
 {
     public const string Guid = "olden-era-mods.spicy-weeks";
     public const string Name = "Spicy Weeks";
-    public const string Version = "0.9.0";
+    public const string Version = "0.10.0-beta";
 
     internal static ManualLogSource L;
 
@@ -79,8 +79,14 @@ public class Plugin : BasePlugin
         DumpMap = Config.Bind("Debug", "DumpMap", false,
             "Write BepInEx/spicy-weeks-map.txt showing passable, unreachable and spawn tiles (for testing).");
 
+        // Patch each class on its own: a hook broken by a game patch logs a warning and the rest still loads.
         var harmony = new Harmony(Guid);
-        harmony.PatchAll(typeof(Plugin).Assembly);
+        foreach (var type in AccessTools.GetTypesFromAssembly(typeof(Plugin).Assembly))
+        {
+            if (type.GetCustomAttributes(typeof(HarmonyPatch), false).Length == 0) continue;
+            try { harmony.CreateClassProcessor(type).Patch(); }
+            catch (Exception e) { L.LogWarning($"Could not hook {type.Name}, that feature is off: {e.InnerException?.Message ?? e.Message}"); }
+        }
         AddComponent<QuestInjector>();
         L.LogInfo($"{Name} {Version} loaded, {harmony.GetPatchedMethods().Count()} methods patched");
     }

@@ -73,6 +73,7 @@ notes: `.docs/status-1.md` (git-crypt encrypted; readable once the repo is unloc
    settings). The release notes are that section plus `packaging/INSTALL.txt` (`scripts/release-notes.sh`); the
    workflow fails if the section is missing.
 3. Commit, then `git tag vX.Y.Z && git push origin vX.Y.Z`. The workflow builds and publishes the zip.
+   Tags with a suffix (`v0.10.0-beta`, for the game's public test branch) publish as a GitHub pre-release.
 4. The pipeline currently assumes a single mod (`v*` tags build only Spicy Weeks). **When a second mod is added**,
    switch to per-mod tags (e.g. `spicy-weeks-v0.9.0`, `other-mod-v0.1.0`): the workflow derives the mod and version
    from the tag, builds and packages only that mod, and titles the release after it; `package.sh` takes the mod name.

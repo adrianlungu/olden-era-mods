@@ -6,7 +6,7 @@ using HarmonyLib;
 using Hex;
 using Hex.QuestScript;
 using SessionData = Hex.Session.Data.Data;
-using LocTable = Il2CppSystem.Collections.Generic.Dictionary<string, cae>;
+using LocTable = Il2CppSystem.Collections.Generic.Dictionary<string, cbh>;
 
 namespace SpicyWeeks;
 
@@ -29,14 +29,14 @@ internal static class WeekOverride
     private static readonly Dictionary<string, string> Originals = new();
     private static PropertyInfo _sessionData;
 
-    // The picker: ecr X(SerializableRandom) on the week-picker class (two identical obfuscator copies).
+    // The picker: edy X(SerializableRandom) on the week-picker class (two identical obfuscator copies).
     static IEnumerable<MethodBase> TargetMethods() =>
-        typeof(ect).GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
-            .Where(m => m.ReturnType == typeof(ecr)
+        typeof(eea).GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
+            .Where(m => m.ReturnType == typeof(edy)
                         && m.GetParameters() is { Length: 1 } p
                         && p[0].ParameterType == typeof(SerializableRandom));
 
-    static void Postfix(ect __instance, ref ecr __result)
+    static void Postfix(eea __instance, ref edy __result)
     {
         try
         {
@@ -57,7 +57,7 @@ internal static class WeekOverride
             }
 
             // Banned effects apply on every map, scripted or random.
-            var rolled = __result?.chyb?.sid;
+            var rolled = __result?.cjxo?.sid;
             if (rolled == null || !Plugin.BannedEffectSids().Contains(rolled)) return;
             if (ReplaceWithCalm(__instance, ref __result, out var quiet))
                 Plugin.L.LogInfo($"Banned effect {rolled} rolled; replaced with {quiet.Sid}");
@@ -69,11 +69,11 @@ internal static class WeekOverride
     }
 
     // Week of Calm from the week picker, Month of Calm from the month picker.
-    private static bool ReplaceWithCalm(ect picker, ref ecr result, out (string Sid, string Name, string Desc) calm)
+    private static bool ReplaceWithCalm(eea picker, ref edy result, out (string Sid, string Name, string Desc) calm)
     {
         foreach (var candidate in Calm)
         {
-            var replacement = picker.bbsn(candidate.Sid);
+            var replacement = picker.bcly(candidate.Sid);
             if (replacement == null) continue;
             result = replacement;
             calm = candidate;
@@ -89,30 +89,30 @@ internal static class WeekOverride
     {
         if (_loc == null) return;
         foreach (var (sid, text) in Originals)
-            if (_loc.TryGetValue(sid, out var entry)) entry.cafz = text;
+            if (_loc.TryGetValue(sid, out var entry)) entry.cccs = text;
         Originals.Clear();
     }
 
-    // Localized text lives in the text provider's sid → entry table (it.btdt.cafu); the shown string is
+    // Localized text lives in the text provider's sid → entry table (jo.buxp.cccn); the shown string is
     // the entry's second field (the one the provider's lookup returns).
     private static void SetText(string sid, string text)
     {
-        _loc ??= it.btdt?.cafu;
+        _loc ??= jo.buxp?.cccn;
         if (_loc == null || !_loc.TryGetValue(sid, out var entry))
         {
             Plugin.L.LogWarning($"Localization entry {sid} not found; invasion week keeps Calm's text");
             return;
         }
 
-        if (!Originals.ContainsKey(sid)) Originals[sid] = entry.cafz;
-        entry.cafz = text;
+        if (!Originals.ContainsKey(sid)) Originals[sid] = entry.cccs;
+        entry.cccs = text;
     }
 
     private static SessionData SessionDataNow()
     {
-        var session = dbx.me;
+        var session = ddd.me;
         if (session == null) return null;
-        _sessionData ??= typeof(dbx).GetProperties(BindingFlags.Instance | BindingFlags.Public)
+        _sessionData ??= typeof(ddd).GetProperties(BindingFlags.Instance | BindingFlags.Public)
             .FirstOrDefault(p => p.PropertyType == typeof(SessionData));
         return _sessionData?.GetValue(session) as SessionData;
     }

@@ -1,5 +1,15 @@
 # Spicy Weeks changelog
 
+## 0.10.0-beta
+
+For the game's **public test branch** (beta). On the regular game, keep using 0.9.0.
+
+- Updated for the beta's changes to the game's internals. Gameplay and settings are the same as in 0.9.0.
+- If a future game patch breaks one of the mod's hooks, only that feature switches off (with a warning in the
+  BepInEx log) instead of the whole mod failing to load.
+
+Multiplayer: everyone must be on the beta branch with 0.10.0-beta and the same settings file.
+
 ## 0.9.0
 
 - **Week of the Horde.** Invasions now bring creatures from every faction, not just neutrals. Most invasions are a

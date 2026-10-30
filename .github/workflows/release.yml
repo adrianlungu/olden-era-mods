@@ -45,4 +45,5 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           scripts/release-notes.sh "${GITHUB_REF_NAME#v}" > release-notes.md
-          gh release create "$GITHUB_REF_NAME" "${{ steps.package.outputs.zip }}" --title "Spicy Weeks $GITHUB_REF_NAME" --notes-file release-notes.md
+          prerelease=""; case "$GITHUB_REF_NAME" in *-*) prerelease="--prerelease";; esac
+          gh release create "$GITHUB_REF_NAME" "${{ steps.package.outputs.zip }}" --title "Spicy Weeks $GITHUB_REF_NAME" --notes-file release-notes.md $prerelease

@@ -30,7 +30,7 @@ public class QuestInjector : MonoBehaviour
 
     private unsafe void Update()
     {
-        var session = dbx.me;
+        var session = ddd.me;
         if (session == null)
         {
             _session = IntPtr.Zero;
