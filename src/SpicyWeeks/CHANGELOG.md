@@ -1,5 +1,13 @@
 # Spicy Weeks changelog
 
+## 0.10.1-beta
+
+- **Month of Plague is banned by default.** It killed every creature waiting to be bought in towns and dwellings;
+  now that month is Calm instead. Already have a settings file? Add `astrologist_month_1` to `BannedEffects`
+  yourself (or delete the file to get the new defaults).
+
+Multiplayer: everyone must update and use the same settings file.
+
 ## 0.10.0-beta
 
 For the game's **public test branch** (beta). On the regular game, keep using 0.9.0.

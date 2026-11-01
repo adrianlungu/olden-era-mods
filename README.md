@@ -47,8 +47,8 @@ Brings back the Heroes 3 feeling of *"Month of the Peasant"*, and lets you get r
 - **Stacks spawn where you can reach them** *(v0.9.0+)*, never in pockets walled in by mountains or cliffs.
 - **Invaders have moods** *(v0.9.0+)*. Each invasion is in a different mood, which changes how willing its stacks are
   to join you: *Week of the Raging Monsters* rarely joins, *Week of the Travelling Monsters* often does.
-- **Banned week effects.** Month of Clarity, the one that reveals the whole map, never happens.
-  You can ban others too.
+- **Banned week effects.** Month of Clarity, the one that reveals the whole map, never happens, and neither does
+  Month of Plague, which kills the creatures waiting in your towns *(v0.10.1-beta+)*. You can ban others too.
 - **Works in multiplayer.** Every player sees the same invasions.
 
 Invasions happen on random maps (any template) and on hand-made maps without their own script
@@ -73,16 +73,16 @@ Open `BepInEx/config/olden-era-mods.spicy-weeks.cfg` in any text editor.
 | `Moods` *(v0.9.0+)* | `Aggressive,Negative,Common,Friendly,Peaceful` | Moods an invasion can roll, from least to most willing to join. List a mood twice to make it more likely. |
 | `Factions` *(v0.9.0+)* | `all` | Which creatures invade: `neutral`, `human`, `demon`, `dungeon`, `nature`, `undead`, `unfrozen`, or `all`, comma-separated. Faction creatures include their upgrades. |
 | `MixedChancePercent` *(v0.9.0+)* | `75` | Chance that an invasion is a *Week of the Horde*: every stack is a different creature. Set to `0` for the classic one-creature weeks. |
-| `BannedEffects` | `astrologist_month_5` | Week/month effects that never happen, comma-separated. |
+| `BannedEffects` | `astrologist_month_5,astrologist_month_1` | Week/month effects that never happen, comma-separated. |
 
 Some effects you might want to ban:
 
 | Effect | Name |
 |---|---|
 | `astrologist_month_5` | Month of Clarity: reveals the whole map |
+| `astrologist_month_1` | Month of Plague: kills unowned creatures in towns and dwellings |
 | `astrologist_week_5` | Week of Dusk: covers the map in fog |
 | `astrologist_week_6` | Wednesday Week: the week lasts 3 days |
-| `astrologist_month_1` | Month of Plague: kills unowned creatures in towns and dwellings |
 | `astrologist_month_8` | Month of Destruction: no building |
 
 What changed in each version: [changelog](src/SpicyWeeks/CHANGELOG.md).

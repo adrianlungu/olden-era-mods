@@ -14,7 +14,7 @@ public class Plugin : BasePlugin
 {
     public const string Guid = "olden-era-mods.spicy-weeks";
     public const string Name = "Spicy Weeks";
-    public const string Version = "0.10.0-beta";
+    public const string Version = "0.10.1-beta";
 
     internal static ManualLogSource L;
 
@@ -70,9 +70,9 @@ public class Plugin : BasePlugin
         MatchNeutralDifficulty = Config.Bind("Invasions", "MatchNeutralDifficulty", true,
             "Scale StackValue by the game's neutral difficulty, like the game's own neutral stacks: " +
             "easy x0.5, normal x0.75, hard x1, impossible x1.25, deadly x1.5, hell x2.");
-        BannedEffects = Config.Bind("Astrology", "BannedEffects", "astrologist_month_5",
+        BannedEffects = Config.Bind("Astrology", "BannedEffects", "astrologist_month_5,astrologist_month_1",
             "Comma-separated week/month effects that never happen; a banned roll becomes Week/Month of Calm. " +
-            "astrologist_month_5 = Month of Clarity (reveals the whole map), astrologist_week_5 = Week of Dusk, " +
+            "astrologist_month_5 = Month of Clarity (reveals the whole map), astrologist_month_1 = Month of Plague (kills unbought creatures in towns and dwellings), astrologist_week_5 = Week of Dusk, " +
             "astrologist_week_6 = 3-day week. Sids are in DB/weeks_info.json inside Core.zip.");
         RevealSpawns = Config.Bind("Debug", "RevealSpawns", false,
             "Clear the fog around each spawned stack (for testing).");
