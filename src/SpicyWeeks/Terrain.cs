@@ -61,7 +61,7 @@ internal static class Terrain
         Clear();
         try
         {
-            var session = ddd.me;
+            var session = dcy.me;
             if (session == null) return;
 
             var world = *(IntPtr*)(session.Pointer + SessionToWorld);

@@ -9,6 +9,15 @@ a mood that sets how willing its stacks are to join a hero, and the astrologer
 announces it in place of the usual week effect. For only single-creature weeks,
 set MixedChancePercent = 0 in the settings file.
 
+Some invasions are special weeks instead: the Swarm (countless small stacks),
+Champions (a few huge stacks), Mercenaries (stacks that join anyone for free)
+or the Rift (hostile top-tier creatures). SpecialChancePercent sets how often.
+
+Now and then, from the second month on, an invasion is a Spicy Week: something
+new happens every day (swarms, champions, free mercenaries, top-tier rifts,
+sudden mood swings), each day harder than the last. SpicyChancePercent sets how
+often (0 turns it off).
+
 It also bans Month of Clarity (the month that reveals the whole map) and Month
 of Plague (kills unbought creatures in towns): when the astrologer rolls one,
 the month is Calm instead. More effects can be banned in

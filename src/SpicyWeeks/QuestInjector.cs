@@ -30,7 +30,7 @@ public class QuestInjector : MonoBehaviour
 
     private unsafe void Update()
     {
-        var session = ddd.me;
+        var session = dcy.me;
         if (session == null)
         {
             _session = IntPtr.Zero;
@@ -73,7 +73,8 @@ public class QuestInjector : MonoBehaviour
             var settings = new SpawnSettings(Plugin.TilesPerStack.Value, stackValue,
                 Plugin.WeeklyGrowthPercent.Value / 100.0, Plugin.SpawnChancePercent.Value, Plugin.FirstWeek.Value,
                 Plugin.MinWeeksBetween.Value, Plugin.RevealSpawns.Value, Weeks: 200, Moods.Parse(Plugin.Moods.Value),
-                Creatures.Pool(Plugin.Factions.Value), Plugin.MixedChancePercent.Value);
+                Creatures.Pool(Plugin.Factions.Value), Plugin.MixedChancePercent.Value,
+                Plugin.SpicyChancePercent.Value, Plugin.SpecialChancePercent.Value);
             // Every client shares the lobby seed → same script, keeping multiplayer in lockstep.
             if (!GameSeed.TryGet(out var seed))
             {
@@ -97,7 +98,7 @@ public class QuestInjector : MonoBehaviour
 
             IL2CPP.il2cpp_gc_wbarrier_set_field(_session, (IntPtr)slot, manager.Pointer);
             Plugin.L.LogInfo($"Injected invasion quest manager into script-less map {width}x{height}, seed {seed}, neutral difficulty {difficulty} (stack value {stackValue}), humans [{string.Join(",", humans)}], bot [{string.Join(",", firstBot)}], " +
-                                $"invasion weeks [{string.Join(",", InvasionSchedule.AbsoluteWeeks.Select(w => w + 1))}]");
+                                $"invasion weeks [{string.Join(",", InvasionSchedule.AbsoluteWeeks.Select(w => (w + 1) + (InvasionSchedule.For(w).Spicy ? "*" : "")))}] (* = Spicy Week)");
         }
         catch (Exception e)
         {

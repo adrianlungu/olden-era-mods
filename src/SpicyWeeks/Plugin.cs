@@ -14,7 +14,7 @@ public class Plugin : BasePlugin
 {
     public const string Guid = "olden-era-mods.spicy-weeks";
     public const string Name = "Spicy Weeks";
-    public const string Version = "0.10.1-beta";
+    public const string Version = "0.10.0";
 
     internal static ManualLogSource L;
 
@@ -30,6 +30,8 @@ public class Plugin : BasePlugin
     internal static ConfigEntry<string> Factions;
     internal static ConfigEntry<int> MixedChancePercent;
     internal static ConfigEntry<bool> MatchNeutralDifficulty;
+    internal static ConfigEntry<int> SpicyChancePercent;
+    internal static ConfigEntry<int> SpecialChancePercent;
     internal static ConfigEntry<string> BannedEffects;
     internal static ConfigEntry<bool> RevealSpawns;
     internal static ConfigEntry<bool> DumpMap;
@@ -70,6 +72,13 @@ public class Plugin : BasePlugin
         MatchNeutralDifficulty = Config.Bind("Invasions", "MatchNeutralDifficulty", true,
             "Scale StackValue by the game's neutral difficulty, like the game's own neutral stacks: " +
             "easy x0.5, normal x0.75, hard x1, impossible x1.25, deadly x1.5, hell x2.");
+        SpicyChancePercent = Config.Bind("Invasions", "SpicyChancePercent", 25,
+            "Chance (0-100) that an invasion from the second month on is a Spicy Week (at most one a month): " +
+            "something new every day, from swarms and champions to free mercenaries and sudden mood swings. 0 turns it off.");
+        SpecialChancePercent = Config.Bind("Invasions", "SpecialChancePercent", 30,
+            "Chance (0-100) that an invasion is a special week instead of a horde or single-creature week: " +
+            "Week of the Swarm (many small stacks), Champions (a few huge ones), Mercenaries (a few that join anyone " +
+            "for free) or the Rift (hostile top-tier creatures). 0 turns them off.");
         BannedEffects = Config.Bind("Astrology", "BannedEffects", "astrologist_month_5,astrologist_month_1",
             "Comma-separated week/month effects that never happen; a banned roll becomes Week/Month of Calm. " +
             "astrologist_month_5 = Month of Clarity (reveals the whole map), astrologist_month_1 = Month of Plague (kills unbought creatures in towns and dwellings), astrologist_week_5 = Week of Dusk, " +

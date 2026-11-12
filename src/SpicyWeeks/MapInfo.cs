@@ -4,7 +4,7 @@ namespace SpicyWeeks;
 
 /// <summary>
 /// Reads the current map size by following the same pointer chain the game's SpawnSquad action uses:
-/// session singleton (ddd.me) +104 → world, +80 → Map, +24 → map data, +64/+68 → width/height.
+/// session singleton (dcy.me) +104 → world, +80 → Map, +24 → map data, +64/+68 → width/height.
 /// Offsets come from the IL2CPP disassembly and may change with game patches; results are sanity-checked.
 /// </summary>
 internal static class MapInfo
@@ -18,7 +18,7 @@ internal static class MapInfo
     public static unsafe bool TryGetSize(out int width, out int height)
     {
         width = height = 0;
-        var session = ddd.me;
+        var session = dcy.me;
         if (session == null) return false;
 
         var p = session.Pointer;

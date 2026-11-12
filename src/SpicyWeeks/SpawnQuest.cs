@@ -10,7 +10,8 @@ namespace SpicyWeeks;
 
 internal record SpawnSettings(
     int TilesPerStack, int BaseValue, double WeeklyGrowth, int ChancePercent, int FirstWeek, int MinWeeksBetween,
-    bool Reveal, int Weeks, Mood[] Moods, Creature[] Pool, int MixedChancePercent);
+    bool Reveal, int Weeks, Mood[] Moods, Creature[] Pool, int MixedChancePercent, int SpicyChancePercent,
+    int SpecialChancePercent);
 
 /// <summary>
 /// Rolls the game's invasion schedule and builds a quest script with one non-repeating trigger per invasion,
@@ -38,7 +39,7 @@ internal static class SpawnQuest
         InvasionSchedule.Set(schedule);
 
         var spawns = new List<int>();
-        var triggers = schedule.Select(i => InvasionTrigger(i, width, height, rng, s, spawns)).ToArray();
+        var triggers = schedule.SelectMany(i => InvasionTriggers(i, width, height, rng, s, spawns)).ToArray();
         if (Plugin.DumpMap.Value) Terrain.Dump(spawns);
 
         var subQuest = new SubQuest
@@ -79,6 +80,7 @@ internal static class SpawnQuest
         var stacks = Math.Max(4, area / Math.Max(1, s.TilesPerStack));
         var invasions = new List<Invasion>();
         var lastInvasion = int.MinValue / 2;
+        var lastSpicyMonth = 0;
 
         for (var gameWeek = Math.Max(2, s.FirstWeek); gameWeek <= s.Weeks; gameWeek++)
         {
@@ -103,58 +105,87 @@ internal static class SpawnQuest
                 (name, week) = (creature.Name, creature.Week ?? $"Week of the {creature.Name}");
             }
 
+            // Spicy Week: from the second month on, at most once a month.
+            var month = absolute / 4 + 1;
+            if (month >= 2 && month != lastSpicyMonth && rng.Next(100) < s.SpicyChancePercent)
+            {
+                invasions.Add(new Invasion(absolute, SpicyWeek.Roll(stacks, value, rng, s),
+                    SpicyWeek.WeekName, SpicyWeek.Announcement, Spicy: true));
+                lastSpicyMonth = month;
+                lastInvasion = absolute;
+                continue;
+            }
+
+            if (rng.Next(100) < s.SpecialChancePercent)
+            {
+                invasions.Add(SpicyWeek.Special(absolute, stacks, value, rng, s));
+                lastInvasion = absolute;
+                continue;
+            }
+
             var mood = s.Moods[rng.Next(s.Moods.Length)];
-            invasions.Add(new Invasion(absolute, squads, mood.Title?.Invoke(name) ?? week,
-                mood.Announcement(name, stacks), mood.Reaction, stacks, value));
+            invasions.Add(new Invasion(absolute, new[] { new Wave(1, squads, mood.Reaction, value, week) },
+                mood.Title?.Invoke(name) ?? week, mood.Announcement(name, stacks)));
             lastInvasion = absolute;
         }
 
         return invasions;
     }
 
-    private static Trigger InvasionTrigger(Invasion invasion, int width, int height, Random rng, SpawnSettings s, List<int> spawns)
+    private static IEnumerable<Trigger> InvasionTriggers(Invasion invasion, int width, int height, Random rng, SpawnSettings s, List<int> spawns)
     {
-        var actions = new List<Action>();
         var gameWeek = invasion.AbsoluteWeek + 1;
-
-        for (var i = 0; i < invasion.Stacks; i++)
+        var named = new List<string>();
+        foreach (var wave in invasion.Waves)
         {
-            var tiles = Terrain.SpawnTiles;
-            var tile = tiles is { Length: > 0 }
-                ? tiles[rng.Next(tiles.Length)]
-                : rng.Next(Margin, width - Margin) + rng.Next(Margin, height - Margin) * width;
-            spawns.Add(tile);
-            var name = $"spicy_weeks_w{gameWeek}_{i}";
-            actions.Add(MakeAction(EAction.SpawnSquad, "SpawnSquad",
-                invasion.SquadIds[i], tile.ToString(), invasion.Value.ToString(), "true", name));
-            actions.Add(MakeAction(EAction.ChangeSquadReactionType, "ChangeSquadReactionType", name, invasion.Reaction));
-            if (s.Reveal)
-                actions.Add(MakeAction(EAction.RevealFogOfWar, "RevealFogOfWar", tile.ToString(), RevealRadius.ToString()));
-        }
-
-        actions.Add(MakeAction(EAction.Print, "Print",
-            $"[SpicyWeeks] week {gameWeek}: {invasion.WeekName}! {invasion.Stacks} {invasion.Reaction} stacks of {string.Join(",", invasion.SquadIds.Distinct())}, value {invasion.Value}"));
-
-        return new Trigger
-        {
-            comment = $"SpicyWeeks week {gameWeek}",
-            repeat = false,
-            conditionsLogic = "And",
-            eConditionsLogic = EConditionsLogic.And,
-            conditions = new Il2CppReferenceArray<Condition>(new[]
+            var actions = new List<Action>();
+            if (wave.Retarget)
             {
-                // AnyStartTurn [month, week of month, day]; first day of the week, months have 4 weeks.
-                new Condition
+                foreach (var name in named)
+                    actions.Add(MakeAction(EAction.ChangeSquadReactionType, "ChangeSquadReactionType", name, wave.Reaction));
+            }
+
+            for (var i = 0; i < wave.SquadIds.Length; i++)
+            {
+                var tiles = Terrain.SpawnTiles;
+                var tile = tiles is { Length: > 0 }
+                    ? tiles[rng.Next(tiles.Length)]
+                    : rng.Next(Margin, width - Margin) + rng.Next(Margin, height - Margin) * width;
+                spawns.Add(tile);
+                var name = $"spicy_weeks_w{gameWeek}_d{wave.Day}_{i}";
+                named.Add(name);
+                actions.Add(MakeAction(EAction.SpawnSquad, "SpawnSquad",
+                    wave.SquadIds[i], tile.ToString(), wave.Value.ToString(), "true", name));
+                actions.Add(MakeAction(EAction.ChangeSquadReactionType, "ChangeSquadReactionType", name, wave.Reaction));
+                if (s.Reveal)
+                    actions.Add(MakeAction(EAction.RevealFogOfWar, "RevealFogOfWar", tile.ToString(), RevealRadius.ToString()));
+            }
+
+            actions.Add(MakeAction(EAction.Print, "Print",
+                $"[SpicyWeeks] week {gameWeek} day {wave.Day}: {invasion.WeekName}, {wave.Label}! {wave.SquadIds.Length} {wave.Reaction} stacks of {string.Join(",", wave.SquadIds.Distinct())}, value {wave.Value}"));
+
+            yield return new Trigger
+            {
+                comment = $"SpicyWeeks week {gameWeek} day {wave.Day}",
+                repeat = false,
+                conditionsLogic = "And",
+                eConditionsLogic = EConditionsLogic.And,
+                conditions = new Il2CppReferenceArray<Condition>(new[]
                 {
-                    c = "AnyStartTurn", condition = ECondition.AnyStartTurn,
-                    p = new Il2CppStringArray(new[]
+                    // AnyStartTurn [month, week of month, day of week]; months have 4 weeks.
+                    new Condition
                     {
-                        (invasion.AbsoluteWeek / 4 + 1).ToString(), (invasion.AbsoluteWeek % 4 + 1).ToString(), "1",
-                    }),
-                },
-            }),
-            actions = new Il2CppReferenceArray<Action>(actions.ToArray()),
-        };
+                        c = "AnyStartTurn", condition = ECondition.AnyStartTurn,
+                        p = new Il2CppStringArray(new[]
+                        {
+                            (invasion.AbsoluteWeek / 4 + 1).ToString(), (invasion.AbsoluteWeek % 4 + 1).ToString(),
+                            wave.Day.ToString(),
+                        }),
+                    },
+                }),
+                actions = new Il2CppReferenceArray<Action>(actions.ToArray()),
+            };
+        }
     }
 
     private static Action MakeAction(EAction kind, string name, params string[] p) =>
