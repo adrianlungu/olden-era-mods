@@ -14,7 +14,7 @@ public class Plugin : BasePlugin
 {
     public const string Guid = "olden-era-mods.spicy-weeks";
     public const string Name = "Spicy Weeks";
-    public const string Version = "0.10.0";
+    public const string Version = "0.10.1";
 
     internal static ManualLogSource L;
 

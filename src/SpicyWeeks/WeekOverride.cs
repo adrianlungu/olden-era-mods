@@ -79,7 +79,7 @@ internal static class WeekOverride
             }
 
             // Banned effects apply on every map, scripted or random.
-            var rolled = __result?.ckbn?.sid;
+            var rolled = __result?.ckbv?.sid;
             if (rolled == null || !Plugin.BannedEffectSids().Contains(rolled)) return;
             if (ReplaceWithCalm(__instance, ref __result, out var quiet))
                 Plugin.L.LogInfo($"Banned effect {rolled} rolled; replaced with {quiet.Sid}");
@@ -111,23 +111,23 @@ internal static class WeekOverride
     {
         if (_loc == null) return;
         foreach (var (sid, text) in Originals)
-            if (_loc.TryGetValue(sid, out var entry)) entry.ccds = text;
+            if (_loc.TryGetValue(sid, out var entry)) entry.ccea = text;
         Originals.Clear();
     }
 
-    // Localized text lives in the text provider's sid → entry table (iv.buwg.ccdi); the shown string is
+    // Localized text lives in the text provider's sid → entry table (iv.buwo.ccdq); the shown string is
     // the entry's second field (the one the provider's lookup returns).
     private static void SetText(string sid, string text)
     {
-        _loc ??= iv.buwg?.ccdi;
+        _loc ??= iv.buwo?.ccdq;
         if (_loc == null || !_loc.TryGetValue(sid, out var entry))
         {
             Plugin.L.LogWarning($"Localization entry {sid} not found; invasion week keeps Calm's text");
             return;
         }
 
-        if (!Originals.ContainsKey(sid)) Originals[sid] = entry.ccds;
-        entry.ccds = text;
+        if (!Originals.ContainsKey(sid)) Originals[sid] = entry.ccea;
+        entry.ccea = text;
     }
 
     private static SessionData SessionDataNow()

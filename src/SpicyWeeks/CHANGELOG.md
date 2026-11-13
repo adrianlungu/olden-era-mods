@@ -1,5 +1,9 @@
 # Spicy Weeks changelog
 
+## 0.10.1
+
+- Works with the game's November 13 update. No gameplay changes; everyone in a multiplayer game needs 0.10.1.
+
 ## 0.10.0
 
 For the game's November 10 update (regular branch). Includes everything from the two betas below.
