@@ -19,7 +19,7 @@ internal static class SpicyWeek
 
     private const double DailyEscalation = 0.15;
 
-    private enum Dish { Swarm, Champions, Mercenaries, Rift, MoodSwing, Calm }
+    private enum Dish { Swarm, Champions, Mercenaries, Rift, MoodSwing, Calm, Beasts }
 
     // Weighted menu; the first day always serves something that spawns.
     private static readonly (Dish Dish, int Weight)[] Menu =
@@ -65,6 +65,9 @@ internal static class SpicyWeek
                 return Spawn(day, "mercenaries", Math.Max(2, stacks / 6), value, "Docile", rng, s);
             case Dish.Rift:
                 return Spawn(day, "a rift", Math.Max(2, stacks / 8), value * 3, rng.Next(2) == 0 ? "Aggressive" : "Negative", rng, s);
+            case Dish.Beasts:
+                // Weak at first, scattered, and they grow every day for the rest of the game.
+                return Spawn(day, "beasts", Math.Max(3, stacks / 10), value, RandomMood(rng, s), rng, s) with { Growing = true };
             case Dish.MoodSwing:
                 return new Wave(day, Array.Empty<string>(), rng.Next(2) == 0 ? "Aggressive" : "Docile", 0, "a mood swing",
                     Retarget: true);
@@ -84,12 +87,17 @@ internal static class SpicyWeek
             "Mercenaries seek a paymaster. A few stacks will join the first hero to reach them, free of charge."),
         (Dish.Rift, "Week of the Rift",
             "A rift tears open! Stacks of the mightiest creatures pour out, hostile to all."),
+        (Dish.Beasts, "Week of the Beasts",
+            "Beasts awaken across the land. They grow stronger every single day, forever; hunt them while you can."),
     };
 
     /// <summary>A one-day special invasion week (swarm, champions, mercenaries or rift).</summary>
     public static Invasion Special(int absoluteWeek, int stacks, int value, Random rng, SpawnSettings s)
     {
         var (dish, week, announcement) = Specials[rng.Next(Specials.Length)];
+        var forced = Plugin.ForceSpecialWeek.Value?.Trim();
+        if (!string.IsNullOrEmpty(forced) && Specials.FirstOrDefault(x => x.Week.Equals(forced, StringComparison.OrdinalIgnoreCase)) is { Week: not null } f)
+            (dish, week, announcement) = f;
         return new Invasion(absoluteWeek, new[] { Cook(dish, 1, stacks, value, rng, s) }, week, announcement);
     }
 

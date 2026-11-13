@@ -9,7 +9,8 @@ internal record Invasion(int AbsoluteWeek, Wave[] Waves, string WeekName, string
 /// One day's spawns in an invasion week: a stack per squad id, all at the same value and reaction.
 /// Retarget waves spawn nothing and instead change the reaction of every stack spawned earlier that week.
 /// </summary>
-internal record Wave(int Day, string[] SquadIds, string Reaction, int Value, string Label, bool Retarget = false);
+internal record Wave(int Day, string[] SquadIds, string Reaction, int Value, string Label, bool Retarget = false,
+    bool Growing = false);
 
 /// <summary>
 /// The current game's invasion weeks, keyed by 0-based absolute week (week 1 of month 1 = 0, day 8 = 1).

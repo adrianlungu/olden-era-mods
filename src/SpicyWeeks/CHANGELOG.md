@@ -1,5 +1,12 @@
 # Spicy Weeks changelog
 
+## 0.11.0
+
+- **Week of the Beasts.** A new special week: stacks appear all over the map, weak at first, and grow stronger every
+  day for the rest of the game. New setting: `BeastGrowthPercent` (default 10% a day).
+- Debug settings for testing: `ForceSpecialWeek` and `PandoraTest` (an experiment for trapped Pandora's boxes).
+- Everyone in a multiplayer game needs 0.11.0 and the same settings.
+
 ## 0.10.1
 
 - Works with the game's November 13 update. No gameplay changes; everyone in a multiplayer game needs 0.10.1.

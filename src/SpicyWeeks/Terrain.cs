@@ -108,6 +108,9 @@ internal static class Terrain
         return result;
     }
 
+    /// <summary>True if a stack or object can be placed on the tile (in the main reachable region).</summary>
+    public static bool IsSpawnable(int t) => _spawnable != null && t >= 0 && t < _spawnable.Length && _spawnable[t];
+
     private static bool Passable(int t) => _water[t] == 0 && _blocked[t] == 0;
 
     private static bool NearEdge(int t)

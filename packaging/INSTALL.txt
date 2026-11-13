@@ -11,7 +11,9 @@ set MixedChancePercent = 0 in the settings file.
 
 Some invasions are special weeks instead: the Swarm (countless small stacks),
 Champions (a few huge stacks), Mercenaries (stacks that join anyone for free)
-or the Rift (hostile top-tier creatures). SpecialChancePercent sets how often.
+the Rift (hostile top-tier creatures) or the Beasts (stacks that grow stronger
+every day, forever; BeastGrowthPercent sets how fast). SpecialChancePercent
+sets how often.
 
 Now and then, from the second month on, an invasion is a Spicy Week: something
 new happens every day (swarms, champions, free mercenaries, top-tier rifts,

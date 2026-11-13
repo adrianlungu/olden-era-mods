@@ -50,6 +50,8 @@ Brings back the Heroes 3 feeling of *"Month of the Peasant"*, and lets you get r
 - **Special weeks** *(v0.10.0+)*. Some invasions are something else entirely: *Week of the Swarm* (countless small
   stacks blocking the roads), *Week of Champions* (a few stacks of fearsome strength), *Week of Mercenaries* (a few
   stacks that join the first hero to reach them, for free) or *Week of the Rift* (hostile top-tier creatures).
+  *(v0.11.0+)* *Week of the Beasts*: scattered stacks that start weak and grow stronger every day, for the rest of
+  the game. Hunt them early or regret it.
 - **Spicy Week** *(v0.10.0+)*. Now and then, from the second month on, an invasion week turns spicy: something new
   happens **every day**. A swarm of small stacks one day, a few huge champions the next, free mercenaries that join
   whoever reaches them first, a rift of top-tier creatures, or a sudden mood swing that turns the week's earlier
@@ -79,7 +81,8 @@ Open `BepInEx/config/olden-era-mods.spicy-weeks.cfg` in any text editor.
 | `OverrideWeekEffect` | `true` | Invasion weeks replace the normal week effect and announcement. |
 | `Moods` *(v0.9.0+)* | `Aggressive,Negative,Common,Friendly,Peaceful` | Moods an invasion can roll, from least to most willing to join. List a mood twice to make it more likely. |
 | `Factions` *(v0.9.0+)* | `all` | Which creatures invade: `neutral`, `human`, `demon`, `dungeon`, `nature`, `undead`, `unfrozen`, or `all`, comma-separated. Faction creatures include their upgrades. |
-| `SpecialChancePercent` *(v0.10.0+)* | `30` | Chance that an invasion is a special week (Swarm, Champions, Mercenaries or Rift). `0` turns them off. |
+| `SpecialChancePercent` *(v0.10.0+)* | `30` | Chance that an invasion is a special week (Swarm, Champions, Mercenaries, Rift or Beasts). `0` turns them off. |
+| `BeastGrowthPercent` *(v0.11.0+)* | `10` | How much stronger each Week of the Beasts stack gets every day, forever. |
 | `SpicyChancePercent` *(v0.10.0+)* | `25` | Chance that an invasion from the second month on is a Spicy Week (at most one a month). `0` turns it off. |
 | `MixedChancePercent` *(v0.9.0+)* | `75` | Chance that an invasion is a *Week of the Horde*: every stack is a different creature. Set to `0` for the classic one-creature weeks. |
 | `BannedEffects` | `astrologist_month_5,astrologist_month_1` | Week/month effects that never happen, comma-separated. |

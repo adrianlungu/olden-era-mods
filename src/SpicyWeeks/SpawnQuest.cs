@@ -11,7 +11,7 @@ namespace SpicyWeeks;
 internal record SpawnSettings(
     int TilesPerStack, int BaseValue, double WeeklyGrowth, int ChancePercent, int FirstWeek, int MinWeeksBetween,
     bool Reveal, int Weeks, Mood[] Moods, Creature[] Pool, int MixedChancePercent, int SpicyChancePercent,
-    int SpecialChancePercent);
+    int SpecialChancePercent, int BeastGrowthPercent = 10);
 
 /// <summary>
 /// Rolls the game's invasion schedule and builds a quest script with one non-repeating trigger per invasion,
@@ -39,7 +39,10 @@ internal static class SpawnQuest
         InvasionSchedule.Set(schedule);
 
         var spawns = new List<int>();
-        var triggers = schedule.SelectMany(i => InvasionTriggers(i, width, height, rng, s, spawns)).ToArray();
+        var growth = new List<SubQuest>();
+        var triggers = schedule.SelectMany(i => InvasionTriggers(i, width, height, rng, s, spawns, growth))
+            .Concat(Plugin.PandoraTest.Value ? PandoraTest.Triggers(width, height, s) : Enumerable.Empty<Trigger>())
+            .ToArray();
         if (Plugin.DumpMap.Value) Terrain.Dump(spawns);
 
         var subQuest = new SubQuest
@@ -54,14 +57,14 @@ internal static class SpawnQuest
 
         var quest = new Quest
         {
-            sid = "spicy_weeks_spawns",
+            sid = QuestSid,
             activeOnStart = true,
             hidden = true,
             name = "",
             desc = "",
             sharing = "Shared",
             eSharing = ESharing.Shared,
-            subQuests = new Il2CppReferenceArray<SubQuest>(new[] { subQuest }),
+            subQuests = new Il2CppReferenceArray<SubQuest>(new[] { subQuest }.Concat(growth).ToArray()),
             subQuestGroups = new Il2CppReferenceArray<SubQuestGroup>(0),
         };
 
@@ -132,7 +135,8 @@ internal static class SpawnQuest
         return invasions;
     }
 
-    private static IEnumerable<Trigger> InvasionTriggers(Invasion invasion, int width, int height, Random rng, SpawnSettings s, List<int> spawns)
+    private static IEnumerable<Trigger> InvasionTriggers(Invasion invasion, int width, int height, Random rng, SpawnSettings s, List<int> spawns,
+        List<SubQuest> growth)
     {
         var gameWeek = invasion.AbsoluteWeek + 1;
         var named = new List<string>();
@@ -159,6 +163,14 @@ internal static class SpawnQuest
                 actions.Add(MakeAction(EAction.ChangeSquadReactionType, "ChangeSquadReactionType", name, wave.Reaction));
                 if (s.Reveal)
                     actions.Add(MakeAction(EAction.RevealFogOfWar, "RevealFogOfWar", tile.ToString(), RevealRadius.ToString()));
+            }
+
+            if (wave.Growing)
+            {
+                var growSid = $"spicy_weeks_grow_w{gameWeek}_d{wave.Day}";
+                var stacks = named.Skip(named.Count - wave.SquadIds.Length).ToArray();
+                growth.Add(GrowthSubQuest(growSid, stacks, s.BeastGrowthPercent));
+                actions.Add(MakeAction(EAction.SubQuestActivate, "SubQuestActivate", QuestSid, growSid));
             }
 
             actions.Add(MakeAction(EAction.Print, "Print",
@@ -188,6 +200,41 @@ internal static class SpawnQuest
         }
     }
 
-    private static Action MakeAction(EAction kind, string name, params string[] p) =>
+    private const string QuestSid = "spicy_weeks_spawns";
+
+    // Inactive until its beasts spawn; then, at the start of every day (repeat, any month/week: "-1"),
+    // each beast gets stronger. Strength steps use the game's own "0,1" format (as in its campaign maps).
+    // A killed beast is simply gone; growing it does nothing.
+    private static SubQuest GrowthSubQuest(string sid, string[] stacks, int percent)
+    {
+        var step = (percent / 100.0).ToString("0.0#", System.Globalization.CultureInfo.InvariantCulture).Replace('.', ',');
+        var actions = stacks.Select(n => MakeAction(EAction.IncreaseStrengthSquad, "IncreaseStrengthSquad", n, step))
+            .Append(MakeAction(EAction.Print, "Print", $"[SpicyWeeks] {sid}: beasts grow by {step}"))
+            .ToArray();
+        var triggers = Enumerable.Range(1, 7).Select(day => new Trigger
+        {
+            comment = $"SpicyWeeks {sid} day {day}",
+            repeat = true,
+            conditionsLogic = "And",
+            eConditionsLogic = EConditionsLogic.And,
+            conditions = new Il2CppReferenceArray<Condition>(new[]
+            {
+                new Condition
+                {
+                    c = "AnyStartTurn", condition = ECondition.AnyStartTurn,
+                    p = new Il2CppStringArray(new[] { "-1", "-1", day.ToString() }),
+                },
+            }),
+            actions = new Il2CppReferenceArray<Action>(actions),
+        }).ToArray();
+
+        return new SubQuest
+        {
+            sid = sid, activeOnStart = false, hidden = true, name = "", desc = "",
+            triggers = new Il2CppReferenceArray<Trigger>(triggers),
+        };
+    }
+
+    internal static Action MakeAction(EAction kind, string name, params string[] p) =>
         new() { a = name, action = kind, p = new Il2CppStringArray(p) };
 }

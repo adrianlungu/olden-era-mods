@@ -14,7 +14,7 @@ public class Plugin : BasePlugin
 {
     public const string Guid = "olden-era-mods.spicy-weeks";
     public const string Name = "Spicy Weeks";
-    public const string Version = "0.10.1";
+    public const string Version = "0.11.0";
 
     internal static ManualLogSource L;
 
@@ -32,9 +32,12 @@ public class Plugin : BasePlugin
     internal static ConfigEntry<bool> MatchNeutralDifficulty;
     internal static ConfigEntry<int> SpicyChancePercent;
     internal static ConfigEntry<int> SpecialChancePercent;
+    internal static ConfigEntry<int> BeastGrowthPercent;
     internal static ConfigEntry<string> BannedEffects;
     internal static ConfigEntry<bool> RevealSpawns;
     internal static ConfigEntry<bool> DumpMap;
+    internal static ConfigEntry<bool> PandoraTest;
+    internal static ConfigEntry<string> ForceSpecialWeek;
 
     internal static HashSet<string> BannedEffectSids() =>
         new(BannedEffects.Value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
@@ -78,7 +81,10 @@ public class Plugin : BasePlugin
         SpecialChancePercent = Config.Bind("Invasions", "SpecialChancePercent", 30,
             "Chance (0-100) that an invasion is a special week instead of a horde or single-creature week: " +
             "Week of the Swarm (many small stacks), Champions (a few huge ones), Mercenaries (a few that join anyone " +
-            "for free) or the Rift (hostile top-tier creatures). 0 turns them off.");
+            "for free), the Rift (hostile top-tier creatures) or the Beasts (scattered stacks that grow stronger every day, " +
+            "forever). 0 turns them off.");
+        BeastGrowthPercent = Config.Bind("Invasions", "BeastGrowthPercent", 10,
+            "How much stronger each Week of the Beasts stack gets every day, for the rest of the game (percent).");
         BannedEffects = Config.Bind("Astrology", "BannedEffects", "astrologist_month_5,astrologist_month_1",
             "Comma-separated week/month effects that never happen; a banned roll becomes Week/Month of Calm. " +
             "astrologist_month_5 = Month of Clarity (reveals the whole map), astrologist_month_1 = Month of Plague (kills unbought creatures in towns and dwellings), astrologist_week_5 = Week of Dusk, " +
@@ -87,6 +93,11 @@ public class Plugin : BasePlugin
             "Clear the fog around each spawned stack (for testing).");
         DumpMap = Config.Bind("Debug", "DumpMap", false,
             "Write BepInEx/spicy-weeks-map.txt showing passable, unreachable and spawn tiles (for testing).");
+        ForceSpecialWeek = Config.Bind("Debug", "ForceSpecialWeek", "",
+            "Make every special week this one, e.g. \"Week of the Beasts\" (for testing). Empty = random.");
+        PandoraTest = Config.Bind("Debug", "PandoraTest", false,
+            "Experiment: on day 2, place two Pandora's boxes next to each human hero's starting tile, one plain and " +
+            "one trapped (opening it spawns an aggressive stack), and log every box interaction (for testing).");
 
         // Patch each class on its own: a hook broken by a game patch logs a warning and the rest still loads.
         var harmony = new Harmony(Guid);
